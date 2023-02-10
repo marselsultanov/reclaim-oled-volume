@@ -1,0 +1,31 @@
+- hosts: all
+  become: yes
+  gather_facts: no
+
+  tasks:
+  - name: Permamently unmount "oled" volume
+    mount:
+      path: /var/oled
+      state: '{{ item }}'
+    with_items:
+      - unmounted
+      - absent
+
+  - name: Remove "oled" volume
+    lvol:
+      vg: ocivolume
+      lv: oled
+      state: absent
+      force: true
+
+  - name: Extend "root" volume
+    lvol:
+      vg: ocivolume
+      lv: root
+      size: 100%PVS
+      resizefs: true
+
+  - name: Create "crash" directory
+    file:
+      path: /var/oled/crash
+      state: directory
